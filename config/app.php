@@ -1,6 +1,32 @@
 <?php
 
+use App\Providers\AppServiceProvider;
+use Illuminate\Bus\BusServiceProvider;
 use Illuminate\Support\Facades\Facade;
+use Illuminate\Mail\MailServiceProvider;
+use Illuminate\View\ViewServiceProvider;
+use Illuminate\Cache\CacheServiceProvider;
+use Illuminate\Queue\QueueServiceProvider;
+use Illuminate\Redis\RedisServiceProvider;
+use Illuminate\Hashing\HashServiceProvider;
+use Maatwebsite\Excel\ExcelServiceProvider;
+use Illuminate\Cookie\CookieServiceProvider;
+use Illuminate\Session\SessionServiceProvider;
+use Illuminate\Database\DatabaseServiceProvider;
+use Illuminate\Pipeline\PipelineServiceProvider;
+use Illuminate\Encryption\EncryptionServiceProvider;
+use Illuminate\Filesystem\FilesystemServiceProvider;
+use Illuminate\Pagination\PaginationServiceProvider;
+use Illuminate\Validation\ValidationServiceProvider;
+use Illuminate\Broadcasting\BroadcastServiceProvider;
+use Illuminate\Translation\TranslationServiceProvider;
+use Illuminate\Notifications\NotificationServiceProvider;
+use Illuminate\Auth\Passwords\PasswordResetServiceProvider;
+use Illuminate\Foundation\Providers\FoundationServiceProvider;
+use Illuminate\Foundation\Support\Providers\AuthServiceProvider;
+use Illuminate\Foundation\Support\Providers\EventServiceProvider;
+use Illuminate\Foundation\Support\Providers\RouteServiceProvider;
+use Illuminate\Foundation\Providers\ConsoleSupportServiceProvider;
 
 return [
 
@@ -182,10 +208,11 @@ return [
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
 
+
         /*
          * Package Service Providers...
          */
-
+        Maatwebsite\Excel\ExcelServiceProvider::class,
         /*
          * Application Service Providers...
          */
@@ -208,8 +235,10 @@ return [
     |
     */
 
-    'aliases' => Facade::defaultAliases()->merge([
+    'aliases' => [Facade::defaultAliases()->merge([
         // 'ExampleClass' => App\Example\ExampleClass::class,
     ])->toArray(),
+    'Excel' => Maatwebsite\Excel\ExcelServiceProvider::class,
+    ]
 
 ];

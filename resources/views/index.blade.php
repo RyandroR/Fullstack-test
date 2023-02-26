@@ -1,40 +1,66 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>{{ $title }}</title>
-    
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
-        <link rel="stylesheet" href="{{ URL::asset('/css/style.css') }}
-        ">
-    
-        <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-        <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
-        <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
-    </head>
-    <body class="container">
-        Nv
-        <div class="form ">
-            <form action="/input" method="post">
-                @csrf
-                <input type="text" name="plate" id="">
-                <button type="submit">Submit</button>
-            </form>
-            @if (session()->has('code'))
-                {{ session('code') }}
-            @endif
-            <form action="/cost" method="post">
-                @csrf
-                <input type="text" name="code" id=""
-                class="form-control @error('code') is-invalid @enderror">
-                <button type="submit">Evaluate Cost</button>
-            </form>
-            @if (session()->has('return_info'))
-                {{ session('return_info')['cost'] }}
-                {{ session('return_info')['code'] }}
-            @endif
-            //form insert ke record
-        </div>
-    </body>
-</html>
+@extends('layouts/main')
+
+@section('container')
+        <section class="vh-100" style="background-color: #508bfc;">
+            <div class="container py-5 h-100">
+              <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+                  <div class="card shadow-2-strong" style="border-radius: 1rem;">
+                    <div class="card-body p-5 text-center">
+          
+                      <h3 class="mb-5">N Parking Input Page</h3>
+                      <div class="form ">
+                        @auth
+                          
+                        <form action="/input" method="post">
+                            @csrf
+                            Input Plate
+                            <input type="text" name="plate" id=""
+                            class="form-control @error('plate') is-invalid @enderror">
+                            @error('plate')
+                            <div class="invalid-feedback">
+                              {{ $message }}
+                            </div>
+                            @enderror
+                            <button type="submit">Submit</button>
+                        </form>
+                        @if (session()->has('code'))
+                            {{ session('code') }}
+                        @endif
+                        <form action="/cost" method="post">
+                            @csrf
+                            <input type="text" name="code" id=""
+                            class="form-control @error('code') is-invalid @enderror">
+                            <button type="submit">Evaluate Cost</button>
+                        </form>
+                        <hr class="border-top"/>
+                        @if (session()->has('return_info'))
+                            Cost:{{ session('return_info')['cost'] }}
+                            Code:{{ session('return_info')['code'] }}
+                              <form action="/record" method="post">
+                                  @csrf
+                                  Plate Number
+                                  <input type="text" name="plate" id="" readonly class="form-control form-control-lg"
+                                  value="{{ session('return_info')['plate'] }}">                    
+                                  Unique Code
+                                  <input type="text" name="code" id="" readonly class="form-control form-control-lg"
+                                  value="{{ session('return_info')['code'] }}">
+                                  Parking Cost
+                                  <input type="text" name="parking_cost" id="" readonly class="form-control form-control-lg"
+                                  value="{{ session('return_info')['cost'] }}">
+                                  Amount Paid
+                                  <input type="text" name="amount_paid" id="" class="form-control form-control-lg"
+                                  >
+                                  <button type="submit">Input Record</button>
+                              </form>
+                        @endif
+                        @else
+                            <a href="/login">Sign in</a> to access
+                        @endauth
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+@endsection

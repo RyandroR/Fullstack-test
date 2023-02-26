@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Record;
+use App\Exports\RecordExport;
+use Illuminate\Routing\Controller;
+use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Requests\StoreRecordRequest;
 use App\Http\Requests\UpdateRecordRequest;
 
@@ -15,7 +18,16 @@ class RecordController extends Controller
      */
     public function index()
     {
-        //
+        $record = Record::orderBy('created_at', 'DESC')->get();
+        return view('record_page', [
+            "title" => "Record",
+            "data" => $record
+        ]);
+    }
+
+    public function record_export()
+    {
+        return Excel::download(new RecordExport,'record.xlsx');
     }
 
     /**

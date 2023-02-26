@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\CarPark;
+use App\Models\Record;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -20,70 +21,61 @@ class CarParkController extends Controller
     public function index()
     {
         return view('index', [
-            "title" => "Input Plate Info"
+            "title" => "N Parking"
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \App\Http\Requests\StoreCarParkRequest  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
             'plate' => ['required','unique:car_parks'],
         ]);
-        $validated['code'] = Str::random(15);
 
-        CarPark::create($validated);
+        do{
+            $code = Str::random(15);
+        }while(Record::where('code', $code)->first());
+        $validated['code'] = $code;
+
+        Record::create($validated);
         $request->session()->flash('code', $validated['code']);
         return redirect('/');
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\CarPark  $carPark
-     * @return \Illuminate\Http\Response
-     */
     public function cost(Request $request)
     {
-        $car_log = CarPark::where('code', $request->code)->firstOrFail();
+        $car_log = Record::where('code', $request->code)->firstOrFail();
         $start_time = Carbon::parse($car_log->created_at);
         $end_time = Carbon::now();
-        $cost = $end_time->diffInHours($start_time) * 3000;
+        
+        $cost = ceil($end_time->diffInMinutes($start_time)/60) * 3000;
 
         $return = [
             'code' => $request->code,
-            'cost' => $cost
+            'cost' => $cost,
+            'plate' => $car_log->plate
         ];
-        
         
         $request->session()->flash('return_info', $return);
         return redirect('/');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\CarPark  $carPark
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(CarPark $carPark)
+    public function record(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'amount_paid' => ['required'],
+            'plate' => ['required'],
+            'parking_cost' => ['required'],
+            'code' => ['required']
+        ]);
+        $record = Record::where('code', $request->code)->firstOrFail();
+        $record->exit_time = Carbon::now()->toDateTimeString();
+        $record->amount_paid = $request->amount_paid;
+        $record->parking_cost = $request->parking_cost;
+        $record->is_parked = 'Has exited';
+
+        $record->save();
+
+        return redirect('/');
     }
 
     /**
