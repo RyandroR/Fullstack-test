@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CarPark;
 use App\Models\Record;
+use App\Models\CarPark;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Validation\Rule;
 use Illuminate\Routing\Controller;
 use App\Http\Requests\StoreCarParkRequest;
 use App\Http\Requests\UpdateCarParkRequest;
@@ -27,9 +28,21 @@ class CarParkController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'plate' => ['required','unique:car_parks'],
-        ]);
+        if(Record::where('plate', $request->plate)->exists())
+        {
+            $request['status'] = Record::where('plate', $request->plate)->orderby('id','desc')->first()->is_parked;
+            $validated = $request->validate([
+                'plate' => ['required', 'regex:/^[A-Z]{1,2}\s{1}\d{1,4}\s{1}[A-Z]{1,3}$/'],
+                'status' =>[
+                    Rule::notIn(['Is Parked'])
+                ]
+            ]);
+        }else
+        {
+            $validated = $request->validate([
+                'plate' => ['required', 'regex:/^[A-Z]{1,2}\s{1}\d{1,4}\s{1}[A-Z]{1,3}$/'],
+            ]);
+        }
 
         do{
             $code = Str::random(15);
@@ -43,7 +56,12 @@ class CarParkController extends Controller
 
     public function cost(Request $request)
     {
-        $car_log = Record::where('code', $request->code)->firstOrFail();
+        $car_log = Record::where('code', $request->code)->first();
+        if($car_log->is_parked == 'Has exited')
+        {
+            $request->session()->flash('code', 'Has exited');
+            return redirect('/');
+        }
         $start_time = Carbon::parse($car_log->created_at);
         $end_time = Carbon::now();
         
@@ -62,7 +80,7 @@ class CarParkController extends Controller
     public function record(Request $request)
     {
         $validated = $request->validate([
-            'amount_paid' => ['required'],
+            'amount_paid' => ['required','gte:parking_cost'],
             'plate' => ['required'],
             'parking_cost' => ['required'],
             'code' => ['required']

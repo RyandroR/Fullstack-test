@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('code');
             $table->integer('amount_paid')->default(0);
             $table->integer('parking_cost')->default(0);
-            $table->timestamp('exit_time')->nullable;
+            $table->timestamp('exit_time')->nullable();
             $table->string('is_parked')->default('Is Parked');
             $table->timestamps();
         });
